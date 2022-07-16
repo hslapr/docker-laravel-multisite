@@ -1,0 +1,33 @@
+version: '3'
+services:
+  web:
+    build:
+      context: ./php
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    # value of user should be output of: echo "$(id -u):$(id -g)"
+    user: "1000:1000"
+    volumes:
+      - ../catalog:/var/www/html/catalog
+      - ../nutt:/var/www/html/nutt
+    depends_on:
+      - db
+
+  db:
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./mysql/initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      TZ: 'Asia/Tokyo'
